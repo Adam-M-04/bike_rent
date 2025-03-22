@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/bike_rent
+      - SPRING_DATASOURCE_USERNAME=adam
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+    volumes:
+      - ./src/main/resources/db/migration:/app/migration
+
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=bike_rent
+      - POSTGRES_USER=adam
+      - POSTGRES_PASSWORD=admin
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
