@@ -1,9 +1,13 @@
 package org.example.bike_rent.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "users")
+@Getter
+@Setter
+@AllArgsConstructor
 public class User {
 
     @Id
