@@ -9,7 +9,6 @@ import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.bike_rent.entity.bike.Brand;
 
 @Entity
 @Getter
@@ -19,7 +18,7 @@ public class Bike {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     private String model;
 
