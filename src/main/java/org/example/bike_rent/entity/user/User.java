@@ -1,10 +1,12 @@
-package org.example.bike_rent.entity;
+package org.example.bike_rent.entity.user;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(name = "users")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
 @Getter
 @Setter
 @AllArgsConstructor

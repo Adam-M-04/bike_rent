@@ -1,7 +1,7 @@
 package org.example.bike_rent.controller;
 
 import java.util.List;
-import org.example.bike_rent.entity.User;
+import org.example.bike_rent.entity.user.User;
 import org.example.bike_rent.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
