@@ -29,4 +29,8 @@ public class Bike {
     private String color;
 
     private boolean available;
+
+    @jakarta.persistence.Column(name = "serial_number", nullable = false, unique = true)
+    private String serialNumber;
 }
+

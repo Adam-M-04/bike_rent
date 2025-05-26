@@ -8,7 +8,8 @@ CREATE TABLE bike (
     model VARCHAR(255) NOT NULL,
     brand_id BIGINT,
     color VARCHAR(255),
-    available BOOLEAN NOT NULL DEFAULT true
+    available BOOLEAN NOT NULL DEFAULT true,
+    serial_number VARCHAR(255) NOT NULL UNIQUE
 );
 
 ALTER TABLE bike
