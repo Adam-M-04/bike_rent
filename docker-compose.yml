@@ -4,27 +4,28 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/bike_rent
-      - SPRING_DATASOURCE_USERNAME=adam
-      - SPRING_DATASOURCE_PASSWORD=admin
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
-    volumes:
-      - ./src/main/resources/db/migration:/app/migration
-      - .:/app
-      - ~/.m2:/root/.m2
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/bike_rent
+      SPRING_DATASOURCE_USERNAME: adam
+      SPRING_DATASOURCE_PASSWORD: admin
 
   db:
-    image: postgres:16-alpine
+    image: postgres:17
+    environment:
+      POSTGRES_DB: bike_rent
+      POSTGRES_USER: adam
+      POSTGRES_PASSWORD: admin
     ports:
       - "5432:5432"
-    environment:
-      - POSTGRES_DB=bike_rent
-      - POSTGRES_USER=adam
-      - POSTGRES_PASSWORD=admin
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U adam -d bike_rent"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
+  db_data:
