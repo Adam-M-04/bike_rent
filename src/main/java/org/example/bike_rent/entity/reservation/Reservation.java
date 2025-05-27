@@ -6,8 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.bike_rent.entity.bike.Bike;
 import org.example.bike_rent.entity.user.User;
-
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -28,6 +27,6 @@ public class Reservation {
     @JoinColumn(name = "bike_id")
     private Bike bike;
 
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
 }

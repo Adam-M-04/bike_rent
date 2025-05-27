@@ -31,5 +31,39 @@ public class ReservationController {
         Optional<Reservation> reservation = reservationService.getReservationById(id);
         return reservation.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-}
 
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @PostMapping
+    public ResponseEntity<?> createReservation(@RequestParam Long bikeId) {
+        Optional<Reservation> activeReservation = reservationService.getActiveReservationForBike(bikeId);
+        if (activeReservation.isPresent()) {
+            return ResponseEntity.badRequest().body("Bike is not available");
+        }
+        Optional<Reservation> reservation = reservationService.createReservationForCurrentUser(bikeId);
+        if (reservation.isPresent()) {
+            return ResponseEntity.ok(reservation.get());
+        } else {
+            return ResponseEntity.badRequest().body("Could not create reservation");
+        }
+    }
+
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @PostMapping("/{id}/end")
+    public ResponseEntity<?> endReservation(@PathVariable Long id) {
+        Optional<Reservation> reservationOpt = reservationService.getReservationById(id);
+        if (reservationOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Reservation reservation = reservationOpt.get();
+        String currentEmail = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!reservation.getUser().getEmail().equals(currentEmail)) {
+            return ResponseEntity.status(403).body("You can only end your own reservation");
+        }
+        if (reservation.getEndDate() != null) {
+            return ResponseEntity.badRequest().body("Reservation already ended");
+        }
+        reservation.setEndDate(java.time.LocalDateTime.now());
+        reservationService.createReservation(reservation);
+        return ResponseEntity.ok(reservation);
+    }
+}
