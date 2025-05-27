@@ -34,11 +34,15 @@ class UserControllerTest {
         user1.setId(1);
         user1.setEmail("john@example.com");
         user1.setPassword("pass1");
+        user1.setFirstName("John");
+        user1.setLastName("Doe");
 
         User user2 = new User();
         user2.setId(2);
         user2.setEmail("jane@example.com");
         user2.setPassword("pass2");
+        user2.setFirstName("Jane");
+        user2.setLastName("Smith");
 
         when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2));
 
@@ -47,6 +51,8 @@ class UserControllerTest {
         assertNotNull(users);
         assertEquals(2, users.size());
         assertEquals("john@example.com", users.get(0).getEmail());
+        assertEquals("John", users.get(0).getFirstName());
+        assertEquals("Doe", users.get(0).getLastName());
 
         verify(userRepository, times(1)).findAll();
     }
@@ -57,6 +63,8 @@ class UserControllerTest {
         user.setId(1);
         user.setEmail("john@example.com");
         user.setPassword("pass");
+        user.setFirstName("John");
+        user.setLastName("Doe");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
@@ -65,6 +73,8 @@ class UserControllerTest {
         assertEquals(200, response.getStatusCodeValue());
         assertNotNull(response.getBody());
         assertEquals("john@example.com", response.getBody().getEmail());
+        assertEquals("John", response.getBody().getFirstName());
+        assertEquals("Doe", response.getBody().getLastName());
 
         verify(userRepository, times(1)).findById(1L);
     }
@@ -128,3 +138,4 @@ class UserControllerTest {
         verify(userRepository, never()).save(any(User.class));
     }
 }
+
