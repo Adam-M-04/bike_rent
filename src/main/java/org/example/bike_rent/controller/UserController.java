@@ -10,15 +10,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.example.bike_rent.entity.user.Admin;
+import org.example.bike_rent.entity.user.Customer;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -27,12 +32,26 @@ public class UserController {
         return userRepository.findAll();
     }
 
+    static class CreateUserRequest {
+        public String email;
+        public String password;
+        public String user_type;
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
+    public ResponseEntity<?> createUser(@RequestBody CreateUserRequest request) {
+        if (userRepository.existsByEmail(request.email)) {
             return ResponseEntity.badRequest().body("Email already exists");
         }
-        return ResponseEntity.ok(userRepository.save(user));
+        User newUser;
+        if ("ADMIN".equalsIgnoreCase(request.user_type)) {
+            newUser = new Admin();
+        } else {
+            newUser = new Customer();
+        }
+        newUser.setEmail(request.email);
+        newUser.setPassword(passwordEncoder.encode(request.password));
+        return ResponseEntity.ok(userRepository.save(newUser));
     }
 }
