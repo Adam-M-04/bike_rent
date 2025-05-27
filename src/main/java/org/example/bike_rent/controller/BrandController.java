@@ -24,10 +24,41 @@ public class BrandController {
         return brandRepository.findAll();
     }
 
+    @GetMapping("/brands/{id}")
+    public ResponseEntity<Brand> getBrandById(@PathVariable Integer id) {
+        return brandRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/brands")
     public ResponseEntity<Brand> createBrand(@RequestBody Brand brand) {
         Brand savedBrand = brandRepository.save(brand);
         return ResponseEntity.ok(savedBrand);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/brands/{id}")
+    public ResponseEntity<Brand> updateBrand(@PathVariable Integer id, @RequestBody Brand brandDetails) {
+        return brandRepository.findById(id)
+                .map(brand -> {
+                    brand.setName(brandDetails.getName());
+                    Brand updatedBrand = brandRepository.save(brand);
+                    return ResponseEntity.ok(updatedBrand);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/brands/{id}")
+    public ResponseEntity<Object> deleteBrand(@PathVariable Integer id) {
+        return brandRepository.findById(id)
+                .map(brand -> {
+                    brandRepository.delete(brand);
+                    return ResponseEntity.noContent().build();
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
+
