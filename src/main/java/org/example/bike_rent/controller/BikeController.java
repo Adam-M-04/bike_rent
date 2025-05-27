@@ -64,7 +64,7 @@ public class BikeController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBike(@PathVariable Long id) {
-        bikeService.deleteBike(id);
+         bikeService.deleteBike(id);
         return ResponseEntity.ok().build();
     }
 }
