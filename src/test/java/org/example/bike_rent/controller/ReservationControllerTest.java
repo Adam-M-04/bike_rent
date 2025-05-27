@@ -72,4 +72,102 @@ class ReservationControllerTest {
 
         verify(reservationService, times(1)).getReservationById(100L);
     }
+
+    @Test
+    void testCreateReservationSuccess() {
+        Reservation created = new Reservation();
+        created.setId(1L);
+        when(reservationService.getActiveReservationForBike(1L)).thenReturn(Optional.empty());
+        when(reservationService.createReservationForCurrentUser(1L)).thenReturn(Optional.of(created));
+
+        ResponseEntity<?> response = reservationController.createReservation(1L);
+        assertEquals(200, response.getStatusCodeValue());
+        assertTrue(response.getBody() instanceof Reservation);
+        assertEquals(1L, ((Reservation) response.getBody()).getId());
+        verify(reservationService).getActiveReservationForBike(1L);
+        verify(reservationService).createReservationForCurrentUser(1L);
+    }
+
+    @Test
+    void testCreateReservationBikeNotAvailable() {
+        when(reservationService.getActiveReservationForBike(1L)).thenReturn(Optional.of(new Reservation()));
+        ResponseEntity<?> response = reservationController.createReservation(1L);
+        assertEquals(400, response.getStatusCodeValue());
+        assertEquals("Bike is not available", response.getBody());
+        verify(reservationService).getActiveReservationForBike(1L);
+        verify(reservationService, never()).createReservationForCurrentUser(anyLong());
+    }
+
+    @Test
+    void testCreateReservationFailure() {
+        when(reservationService.getActiveReservationForBike(1L)).thenReturn(Optional.empty());
+        when(reservationService.createReservationForCurrentUser(1L)).thenReturn(Optional.empty());
+        ResponseEntity<?> response = reservationController.createReservation(1L);
+        assertEquals(400, response.getStatusCodeValue());
+        assertEquals("Could not create reservation", response.getBody());
+        verify(reservationService).getActiveReservationForBike(1L);
+        verify(reservationService).createReservationForCurrentUser(1L);
+    }
+
+    @Test
+    void testEndReservationSuccess() {
+        Reservation res = new Reservation();
+        res.setId(1L);
+        res.setUser(new org.example.bike_rent.entity.user.User());
+        res.getUser().setEmail("user@example.com");
+        res.setEndDate(null);
+        when(reservationService.getReservationById(1L)).thenReturn(Optional.of(res));
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+            new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("user@example.com", "pass")
+        );
+        ResponseEntity<?> response = reservationController.endReservation(1L);
+        assertEquals(200, response.getStatusCodeValue());
+        assertTrue(response.getBody() instanceof Reservation);
+        assertNotNull(((Reservation) response.getBody()).getEndDate());
+        verify(reservationService).getReservationById(1L);
+        verify(reservationService).createReservation(any(Reservation.class));
+    }
+
+    @Test
+    void testEndReservationNotFound() {
+        when(reservationService.getReservationById(100L)).thenReturn(Optional.empty());
+        ResponseEntity<?> response = reservationController.endReservation(100L);
+        assertEquals(404, response.getStatusCodeValue());
+        verify(reservationService).getReservationById(100L);
+    }
+
+    @Test
+    void testEndReservationForbidden() {
+        Reservation res = new Reservation();
+        res.setId(1L);
+        res.setUser(new org.example.bike_rent.entity.user.User());
+        res.getUser().setEmail("other@example.com");
+        res.setEndDate(null);
+        when(reservationService.getReservationById(1L)).thenReturn(Optional.of(res));
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+            new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("user@example.com", "pass")
+        );
+        ResponseEntity<?> response = reservationController.endReservation(1L);
+        assertEquals(403, response.getStatusCodeValue());
+        assertEquals("You can only end your own reservation", response.getBody());
+        verify(reservationService).getReservationById(1L);
+    }
+
+    @Test
+    void testEndReservationAlreadyEnded() {
+        Reservation res = new Reservation();
+        res.setId(1L);
+        res.setUser(new org.example.bike_rent.entity.user.User());
+        res.getUser().setEmail("user@example.com");
+        res.setEndDate(java.time.LocalDateTime.now());
+        when(reservationService.getReservationById(1L)).thenReturn(Optional.of(res));
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+            new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("user@example.com", "pass")
+        );
+        ResponseEntity<?> response = reservationController.endReservation(1L);
+        assertEquals(400, response.getStatusCodeValue());
+        assertEquals("Reservation already ended", response.getBody());
+        verify(reservationService).getReservationById(1L);
+    }
 }
+
