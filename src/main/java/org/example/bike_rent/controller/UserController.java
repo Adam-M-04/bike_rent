@@ -4,6 +4,7 @@ import java.util.List;
 import org.example.bike_rent.entity.user.User;
 import org.example.bike_rent.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,11 +21,13 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
