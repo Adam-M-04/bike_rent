@@ -60,5 +60,16 @@ public class ReservationService {
         reservation.setEndDate(null);
         return Optional.of(reservationRepository.save(reservation));
     }
-}
 
+    public List<Reservation> getAllActiveReservations() {
+        return reservationRepository.findAll().stream()
+                .filter(r -> r.getEndDate() == null || !r.getEndDate().isBefore(java.time.LocalDateTime.now()))
+                .toList();
+    }
+
+    public List<Reservation> getReservationsByUser(Long userId) {
+        return reservationRepository.findAll().stream()
+                .filter(r -> r.getUser() != null && r.getUser().getId() == userId)
+                .toList();
+    }
+}

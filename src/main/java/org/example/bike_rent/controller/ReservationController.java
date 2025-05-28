@@ -26,6 +26,18 @@ public class ReservationController {
         return reservationService.getAllReservations();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/active")
+    public List<Reservation> getAllActiveReservations() {
+        return reservationService.getAllActiveReservations();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/user/{userId}")
+    public List<Reservation> getReservationsByUser(@PathVariable Long userId) {
+        return reservationService.getReservationsByUser(userId);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
         Optional<Reservation> reservation = reservationService.getReservationById(id);
