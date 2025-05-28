@@ -8,6 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Brands", description = "Endpoints for managing brands")
 @RestController
 @RequestMapping("/api")
 public class BrandController {
@@ -19,11 +23,13 @@ public class BrandController {
         this.brandRepository = brandRepository;
     }
 
+    @Operation(summary = "Get all brands", description = "Returns a list of all brands")
     @GetMapping("/brands")
     public List<Brand> getAllBrands() {
         return brandRepository.findAll();
     }
 
+    @Operation(summary = "Get brand by ID", description = "Returns a brand by its ID")
     @GetMapping("/brands/{id}")
     public ResponseEntity<Brand> getBrandById(@PathVariable Integer id) {
         return brandRepository.findById(id)
@@ -31,6 +37,7 @@ public class BrandController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Create a new brand", description = "Creates a new brand (admin only)")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/brands")
     public ResponseEntity<Brand> createBrand(@RequestBody Brand brand) {
@@ -61,4 +68,6 @@ public class BrandController {
                 .orElse(ResponseEntity.notFound().build());
     }
 }
+
+
 

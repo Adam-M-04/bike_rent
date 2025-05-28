@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/api/reservations")
 public class ReservationController {
@@ -26,12 +28,14 @@ public class ReservationController {
         return reservationService.getAllReservations();
     }
 
+    @Operation(summary = "Get all active reservations", description = "Returns all reservations that are currently active (end date is null or in the future)")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/active")
     public List<Reservation> getAllActiveReservations() {
         return reservationService.getAllActiveReservations();
     }
 
+    @Operation(summary = "Get all reservations for a user", description = "Returns all reservations for a specific user by their user ID")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/user/{userId}")
     public List<Reservation> getReservationsByUser(@PathVariable Long userId) {

@@ -64,3 +64,4 @@ public class UserController {
         return ResponseEntity.ok(userRepository.save(newUser));
     }
 }
+
