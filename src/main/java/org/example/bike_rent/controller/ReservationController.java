@@ -6,12 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.Optional;
 
 import io.swagger.v3.oas.annotations.Operation;
 
+@Tag(name = "Reservations", description = "Endpoints for managing reservations")
 @RestController
 @RequestMapping("/api/reservations")
 public class ReservationController {
@@ -22,6 +25,7 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
+    @Operation(summary = "Get all reservations", description = "Returns a list of all reservations. Admin only.")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public List<Reservation> getAllReservations() {
