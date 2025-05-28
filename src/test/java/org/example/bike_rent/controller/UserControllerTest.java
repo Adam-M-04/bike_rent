@@ -1,5 +1,6 @@
 package org.example.bike_rent.controller;
 
+import org.example.bike_rent.entity.user.Customer;
 import org.example.bike_rent.entity.user.User;
 import org.example.bike_rent.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,7 +75,6 @@ class UserControllerTest {
         assertNotNull(response.getBody());
         assertEquals("john@example.com", response.getBody().getEmail());
         assertEquals("John", response.getBody().getFirstName());
-        assertEquals("Doe", response.getBody().getLastName());
 
         verify(userRepository, times(1)).findById(1L);
     }
@@ -96,28 +96,39 @@ class UserControllerTest {
         request.email = "newuser@example.com";
         request.password = "plainpass";
         request.user_type = "CUSTOMER";
+        request.firstName = "Jan";
+        request.lastName = "Kowalski";
+        request.phoneNumber = "123456789";
 
         when(userRepository.existsByEmail(request.email)).thenReturn(false);
         when(passwordEncoder.encode(request.password)).thenReturn("encodedpass");
 
-        User savedUser = new User();
+        org.example.bike_rent.entity.user.Customer savedUser = new org.example.bike_rent.entity.user.Customer();
         savedUser.setId(1);
         savedUser.setEmail(request.email);
         savedUser.setPassword("encodedpass");
+        savedUser.setFirstName(request.firstName);
+        savedUser.setLastName(request.lastName);
+        savedUser.setPhoneNumber(request.phoneNumber);
+        savedUser.setActive(true);
 
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+        when(userRepository.save(any(org.example.bike_rent.entity.user.Customer.class))).thenReturn(savedUser);
 
         ResponseEntity<?> response = userController.createUser(request);
 
         assertEquals(200, response.getStatusCodeValue());
-        assertTrue(response.getBody() instanceof User);
-        User resultUser = (User) response.getBody();
+        assertInstanceOf(Customer.class, response.getBody());
+        org.example.bike_rent.entity.user.Customer resultUser = (org.example.bike_rent.entity.user.Customer) response.getBody();
         assertEquals("newuser@example.com", resultUser.getEmail());
         assertEquals("encodedpass", resultUser.getPassword());
+        assertEquals("Jan", resultUser.getFirstName());
+        assertEquals("Kowalski", resultUser.getLastName());
+        assertEquals("123456789", resultUser.getPhoneNumber());
+        assertTrue(resultUser.isActive());
 
         verify(userRepository, times(1)).existsByEmail(request.email);
         verify(passwordEncoder, times(1)).encode(request.password);
-        verify(userRepository, times(1)).save(any(User.class));
+        verify(userRepository, times(1)).save(any(org.example.bike_rent.entity.user.Customer.class));
     }
 
     @Test

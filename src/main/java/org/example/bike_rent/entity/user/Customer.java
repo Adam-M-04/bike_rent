@@ -15,5 +15,5 @@ public class Customer extends User {
     }
 
     private String phoneNumber;
-    private boolean isActive;
+    private boolean isActive = true;
 }

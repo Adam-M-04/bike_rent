@@ -11,9 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.example.bike_rent.entity.user.Admin;
-import org.example.bike_rent.entity.user.Customer;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.example.bike_rent.factory.UserFactory;
 
 @RestController
 @RequestMapping("/api/users")
@@ -45,6 +44,10 @@ public class UserController {
         public String email;
         public String password;
         public String user_type;
+        public String firstName;
+        public String lastName;
+        public String phoneNumber;
+        public String workerCode;
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -53,15 +56,20 @@ public class UserController {
         if (userRepository.existsByEmail(request.email)) {
             return ResponseEntity.badRequest().body("Email already exists");
         }
-        User newUser;
-        if ("ADMIN".equalsIgnoreCase(request.user_type)) {
-            newUser = new Admin();
-        } else {
-            newUser = new Customer();
-        }
+        User newUser = UserFactory.createUser(request.user_type);
         newUser.setEmail(request.email);
         newUser.setPassword(passwordEncoder.encode(request.password));
+        newUser.setFirstName(request.firstName);
+        newUser.setLastName(request.lastName);
+        if (newUser instanceof org.example.bike_rent.entity.user.Customer customer) {
+            customer.setPhoneNumber(request.phoneNumber);
+            customer.setActive(true);
+        }
+        if (newUser instanceof org.example.bike_rent.entity.user.Admin admin) {
+            admin.setWorkerCode(request.workerCode);
+        }
         return ResponseEntity.ok(userRepository.save(newUser));
     }
 }
+
 
